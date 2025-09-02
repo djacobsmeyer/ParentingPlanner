@@ -1041,7 +1041,7 @@ export default function BabyShoppingChecklist() {
                       </div>
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                        <div><strong className="text-gray-900">Don't overbuy newborn stuff:</strong> Babies grow out of NB size quickly</div>
+                        <div><strong className="text-gray-900">Don&apos;t overbuy newborn stuff:</strong> Babies grow out of NB size quickly</div>
                       </div>
                       <div className="flex items-start gap-2">
                         <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
