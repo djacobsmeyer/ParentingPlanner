@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baby Shopping Checklist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c5aa0;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+        .status-indicator {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .status-connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .category-header {
+            background-color: #e8f4f8 !important;
+            font-weight: bold;
+            color: #2c5aa0;
+        }
+        .priority-high { color: #d32f2f; font-weight: bold; }
+        .priority-medium { color: #f57c00; }
+        .priority-low { color: #388e3c; }
+        select, input[type="text"] {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 100%;
+            background-color: white;
+        }
+        .notes-cell {
+            min-width: 200px;
+        }
+        .checkbox {
+            transform: scale(1.2);
+        }
+        .completed-row {
+            opacity: 0.6;
+        }
+        .completed-row td:not(:first-child) {
+            text-decoration: line-through;
+        }
+        .sync-status {
+            float: right;
+            font-size: 12px;
+            color: #666;
+            padding: 5px;
+        }
+        .sync-success {
+            color: #28a745;
+        }
+        .sync-error {
+            color: #dc3545;
+        }
+        .controls {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍼 Baby Shopping Checklist 🍼</h1>
+        
+        <div id="statusIndicator" class="status-indicator">
+            <div class="loading">Loading data from Google Sheet...</div>
+        </div>
+
+        <div class="controls" style="display: none;" id="controls">
+            <span id="syncStatus" class="sync-status"></span>
+            <button class="btn btn-secondary" onclick="loadData()">Refresh Data</button>
+            <button class="btn btn-primary" onclick="saveAllData()">Save All Changes</button>
+        </div>
+
+        <div id="tableContainer" style="display: none;">
+            <table id="shoppingTable">
+                <thead>
+                    <tr>
+                        <th>✓</th>
+                        <th>Item</th>
+                        <th>Priority</th>
+                        <th>Preferred Source</th>
+                        <th>Status</th>
+                        <th>Est. Cost</th>
+                        <th>Notes/Specific Model</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be loaded from Google Sheets -->
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 30px; padding: 15px; background-color: #e8f4f8; border-radius: 5px;">
+            <h3 style="color: #2c5aa0; margin-top: 0;">💡 Pro Tips:</h3>
+            <ul>
+                <li><strong>FB Marketplace:</strong> Great for bigger items like cribs, strollers, high chairs - just check safety recalls</li>
+                <li><strong>Don't overbuy newborn stuff:</strong> Babies grow out of NB size quickly</li>
+                <li><strong>Check your insurance:</strong> Many cover breast pumps - call them first</li>
+                <li><strong>Hospital checklist:</strong> Car seat is REQUIRED to leave the hospital</li>
+                <li><strong>Stock up timing:</strong> Have essentials by 36 weeks (babies can come early!)</li>
+                <li><strong>Google Sheets Integration:</strong> Changes are automatically saved to your Google Sheet so both parents can access from anywhere!</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Google Sheets configuration
+        const SHEET_ID = '198OboUqmYwCjqvhU5SA71lG6Dotw2Q9AQk6OBlaiRJI';
+        const SHEET_NAME = 'Sheet1'; // Adjust if your sheet has a different name
+        const API_KEY = 'YOUR_GOOGLE_API_KEY'; // You'll need to replace this
+        
+        // API URLs
+        const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
+        const SHEETS_UPDATE_URL = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?valueInputOption=RAW&key=${API_KEY}`;
+
+        let sheetData = [];
+        let isDataLoaded = false;
+
+        // Default data structure - will be used to populate the sheet initially
+        const defaultData = [
+            ['Completed', 'Item', 'Priority', 'Preferred Source', 'Status', 'Est. Cost', 'Notes/Specific Model', 'Category'],
+            ['', 'SLEEP & SAFETY', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Crib with firm mattress', 'High', 'FB Marketplace', 'Not Started', '', 'Brand, model, condition...', 'Sleep & Safety'],
+            ['FALSE', 'Fitted crib sheets (2-3)', 'High', 'Amazon', 'Not Started', '', 'Organic cotton preferred', 'Sleep & Safety'],
+            ['FALSE', 'Bassinet or bedside sleeper', 'Medium', 'FB Marketplace', 'Not Started', '', 'For first few months', 'Sleep & Safety'],
+            ['FALSE', 'Sleep sacks/swaddles (NB & 0-3m)', 'High', 'Amazon', 'Not Started', '', 'Halo, Love to Dream, etc.', 'Sleep & Safety'],
+            ['FALSE', 'Baby monitor', 'Medium', 'Amazon', 'Not Started', '', 'Audio vs video preference', 'Sleep & Safety'],
+            ['', 'FEEDING ESSENTIALS', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Nursing pillow', 'High', 'Amazon', 'Not Started', '', 'Boppy, My Brest Friend', 'Feeding'],
+            ['FALSE', 'Breast pump', 'High', 'Insurance', 'Not Started', '', 'Check insurance coverage first', 'Feeding'],
+            ['FALSE', 'Milk storage bags/containers', 'Medium', 'Amazon', 'Not Started', '', 'Can wait until after birth', 'Feeding'],
+            ['FALSE', 'Nipple cream', 'High', 'Amazon', 'Not Started', '', 'Lanolin or other recommendations', 'Feeding'],
+            ['FALSE', 'Bottles & nipples', 'Medium', 'Amazon', 'Not Started', '', 'Dr. Browns, Philips Avent, etc.', 'Feeding'],
+            ['FALSE', 'Formula (if needed)', 'Low', 'Target', 'Not Started', '', 'Have some on hand just in case', 'Feeding'],
+            ['FALSE', 'Burp cloths (6-8)', 'High', 'Amazon', 'Not Started', '', 'You will use these constantly', 'Feeding'],
+            ['', 'DIAPER STATION', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Newborn diapers', 'High', 'Costco/Sams', 'Not Started', '', 'Dont over-buy - babies grow fast', 'Diapers'],
+            ['FALSE', 'Size 1 diapers', 'High', 'Costco/Sams', 'Not Started', '', 'Stock up on these', 'Diapers'],
+            ['FALSE', 'Baby wipes', 'High', 'Costco/Sams', 'Not Started', '', 'Sensitive/fragrance-free preferred', 'Diapers'],
+            ['FALSE', 'Diaper cream', 'High', 'Amazon', 'Not Started', '', 'Desitin, A&D, or similar', 'Diapers'],
+            ['FALSE', 'Changing pad', 'Medium', 'Amazon', 'Not Started', '', 'Portable or for nursery', 'Diapers'],
+            ['', 'CLOTHING BASICS', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Onesies NB & 0-3m (6-8 each)', 'High', 'FB Marketplace', 'Not Started', '', 'Mix of snaps and pull-over', 'Clothing'],
+            ['FALSE', 'Sleepers NB & 0-3m (4-6 each)', 'High', 'FB Marketplace', 'Not Started', '', 'Zippered preferred over snaps', 'Clothing'],
+            ['FALSE', 'Going-home outfit', 'Medium', 'Target', 'Not Started', '', 'Have NB and 0-3m ready', 'Clothing'],
+            ['FALSE', 'Socks & mittens (lots!)', 'Medium', 'Target', 'Not Started', '', 'They fall off constantly', 'Clothing'],
+            ['', 'BATH & CARE', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Baby bathtub', 'Medium', 'FB Marketplace', 'Not Started', '', 'Can wait a few weeks', 'Bath & Care'],
+            ['FALSE', 'Baby soap & shampoo', 'Medium', 'Target', 'Not Started', '', 'Gentle, tear-free formula', 'Bath & Care'],
+            ['FALSE', 'Baby towels & washcloths', 'Medium', 'Target', 'Not Started', '', 'Soft, hooded towels preferred', 'Bath & Care'],
+            ['FALSE', 'Baby nail clippers', 'Low', 'Amazon', 'Not Started', '', 'Safety scissors or files', 'Bath & Care'],
+            ['', 'GETTING AROUND', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Car seat (infant)', 'High', 'FB Marketplace', 'Not Started', '', 'MUST HAVE to leave hospital', 'Transportation'],
+            ['FALSE', 'Stroller system', 'Medium', 'FB Marketplace', 'Not Started', '', 'Travel system with car seat compatibility', 'Transportation'],
+            ['FALSE', 'Baby carrier/wrap', 'Low', 'Amazon', 'Not Started', '', 'Ergobaby, Baby Björn, wraps', 'Transportation'],
+            ['', 'FOR PARENTS', '', '', '', '', '', 'CATEGORY'],
+            ['FALSE', 'Comfortable nursing clothes', 'Medium', 'Amazon', 'Not Started', '', 'For mom - nursing tops, robes', 'Parents'],
+            ['FALSE', 'Easy snacks & freezer meals', 'High', 'Grocery Store', 'Not Started', '', 'Stock up before due date', 'Parents'],
+            ['FALSE', 'Basic first aid supplies', 'Low', 'CVS/Walgreens', 'Not Started', '', 'Baby thermometer, infant Tylenol', 'Parents']
+        ];
+
+        async function loadData() {
+            showStatus('Loading data from Google Sheet...', 'loading');
+            
+            try {
+                const response = await fetch(SHEETS_API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.values && data.values.length > 0) {
+                    sheetData = data.values;
+                    isDataLoaded = true;
+                    renderTable();
+                    showStatus('✅ Connected to Google Sheet', 'connected');
+                } else {
+                    // No data in sheet, populate with default data
+                    await initializeSheet();
+                }
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                
+                // If API key is not set or there's an auth error, show fallback
+                if (API_KEY === 'YOUR_GOOGLE_API_KEY') {
+                    showStatus('⚠️ Google Sheets API not configured. Using local data only.', 'error');
+                    useLocalData();
+                } else {
+                    showStatus('❌ Error connecting to Google Sheet. Using local data.', 'error');
+                    useLocalData();
+                }
+            }
+        }
+
+        async function initializeSheet() {
+            try {
+                const response = await fetch(SHEETS_UPDATE_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        values: defaultData
+                    })
+                });
+
+                if (response.ok) {
+                    sheetData = defaultData;
+                    isDataLoaded = true;
+                    renderTable();
+                    showStatus('✅ Initialized Google Sheet with default data', 'connected');
+                } else {
+                    throw new Error('Failed to initialize sheet');
+                }
+            } catch (error) {
+                console.error('Error initializing sheet:', error);
+                useLocalData();
+            }
+        }
+
+        function useLocalData() {
+            sheetData = defaultData;
+            isDataLoaded = true;
+            renderTable();
+            document.getElementById('controls').style.display = 'none';
+        }
+
+        function showStatus(message, type) {
+            const indicator = document.getElementById('statusIndicator');
+            indicator.innerHTML = `<div class="${type === 'loading' ? 'loading' : type === 'connected' ? 'status-connected' : 'status-error'}">${message}</div>`;
+            
+            if (type === 'connected' || type === 'error') {
+                document.getElementById('controls').style.display = 'block';
+                document.getElementById('tableContainer').style.display = 'block';
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            // Skip header row
+            for (let i = 1; i < sheetData.length; i++) {
+                const row = sheetData[i];
+                const tr = document.createElement('tr');
+                
+                // Check if this is a category header
+                if (row[7] === 'CATEGORY') {
+                    tr.className = 'category-header';
+                    tr.innerHTML = `<td colspan="7">${row[1]}</td>`;
+                } else {
+                    const isCompleted = row[0] === 'TRUE';
+                    if (isCompleted) {
+                        tr.classList.add('completed-row');
+                    }
+
+                    tr.innerHTML = `
+                        <td><input type="checkbox" class="checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleCompleted(this, ${i})"></td>
+                        <td>${row[1] || ''}</td>
+                        <td class="priority-${(row[2] || '').toLowerCase()}">${row[2] || ''}</td>
+                        <td>
+                            <select onchange="updateCell(${i}, 3, this.value)">
+                                ${getSourceOptions(row[3] || '')}
+                            </select>
+                        </td>
+                        <td>
+                            <select onchange="updateCell(${i}, 4, this.value)">
+                                ${getStatusOptions(row[4] || '')}
+                            </select>
+                        </td>
+                        <td><input type="text" value="${row[5] || ''}" placeholder="$" onchange="updateCell(${i}, 5, this.value)"></td>
+                        <td class="notes-cell"><input type="text" value="${row[6] || ''}" placeholder="Notes..." onchange="updateCell(${i}, 6, this.value)"></td>
+                    `;
+                }
+                
+                tbody.appendChild(tr);
+            }
+        }
+
+        function getSourceOptions(selected) {
+            const options = ['FB Marketplace', 'Amazon', 'Target', 'Buy Buy Baby', 'Costco/Sams', 'CVS/Walgreens', 'Insurance', 'Grocery Store', 'Local Store'];
+            return options.map(option => 
+                `<option value="${option}" ${option === selected ? 'selected' : ''}>${option}</option>`
+            ).join('');
+        }
+
+        function getStatusOptions(selected) {
+            const options = ['Not Started', 'Researching', 'Found Option', 'Purchased', 'Received'];
+            return options.map(option => 
+                `<option value="${option}" ${option === selected ? 'selected' : ''}>${option}</option>`
+            ).join('');
+        }
+
+        function toggleCompleted(checkbox, rowIndex) {
+            const row = checkbox.closest('tr');
+            const isCompleted = checkbox.checked;
+            
+            if (isCompleted) {
+                row.classList.add('completed-row');
+            } else {
+                row.classList.remove('completed-row');
+            }
+            
+            // Update data
+            sheetData[rowIndex][0] = isCompleted ? 'TRUE' : 'FALSE';
+            
+            // Auto-save this change
+            if (isDataLoaded && API_KEY !== 'YOUR_GOOGLE_API_KEY') {
+                saveRowData(rowIndex);
+            }
+        }
+
+        function updateCell(rowIndex, colIndex, value) {
+            sheetData[rowIndex][colIndex] = value;
+            
+            // Auto-save this change
+            if (isDataLoaded && API_KEY !== 'YOUR_GOOGLE_API_KEY') {
+                saveRowData(rowIndex);
+            }
+        }
+
+        async function saveRowData(rowIndex) {
+            if (!isDataLoaded) return;
+            
+            try {
+                const range = `${SHEET_NAME}!A${rowIndex + 1}:H${rowIndex + 1}`;
+                const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?valueInputOption=RAW&key=${API_KEY}`;
+                
+                await fetch(updateUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        values: [sheetData[rowIndex]]
+                    })
+                });
+                
+                showSyncStatus('Saved', 'success');
+            } catch (error) {
+                console.error('Error saving row:', error);
+                showSyncStatus('Save failed', 'error');
+            }
+        }
+
+        async function saveAllData() {
+            if (!isDataLoaded) return;
+            
+            showSyncStatus('Saving all changes...', '');
+            
+            try {
+                const response = await fetch(SHEETS_UPDATE_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        values: sheetData
+                    })
+                });
+
+                if (response.ok) {
+                    showSyncStatus('All changes saved!', 'success');
+                } else {
+                    throw new Error('Failed to save');
+                }
+            } catch (error) {
+                console.error('Error saving all data:', error);
+                showSyncStatus('Save failed', 'error');
+            }
+        }
+
+        function showSyncStatus(message, type) {
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.textContent = message;
+            syncStatus.className = `sync-status ${type ? 'sync-' + type : ''}`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    syncStatus.textContent = '';
+                }, 3000);
+            }
+        }
+
+        // Load data when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+
+        // Auto-save every 30 seconds if there are unsaved changes
+        setInterval(() => {
+            if (isDataLoaded && API_KEY !== 'YOUR_GOOGLE_API_KEY') {
+                // Could implement change tracking here for efficiency
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
