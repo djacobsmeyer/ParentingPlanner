@@ -494,6 +494,7 @@ export default function BabyShoppingChecklist() {
 
     try {
       const newItemData = {
+        user: 1,
         name: 'New Item',
         description: 'User added item',
         priority: 'medium' as const,
@@ -947,7 +948,7 @@ export default function BabyShoppingChecklist() {
                                 <option key={option} value={option}>{option}</option>
                               ))}
                             </select>
-                            {item.status && item.status !== '' && (
+                            {item.status.trim() && (
                               <div className={`absolute right-8 top-1/2 transform -translate-y-1/2 px-2 py-0.5 text-xs rounded-full font-medium pointer-events-none ${
                                 item.status === 'Purchased' ? 'bg-green-100 text-green-800' :
                                 item.status === 'Received' ? 'bg-blue-100 text-blue-800' :

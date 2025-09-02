@@ -106,7 +106,7 @@ export const defaultData: ShoppingItem[] = [
   { completed: false, item: 'Baby monitor', priority: 'Medium', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Audio vs video preference', category: 'Sleep & Safety' },
   
   // Feeding
-  { completed: false, item: 'FEEDING ESSENTIALS', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
+  { completed: false, item: 'FEEDING ESSENTIALS', priority: '', preferredSource: '', sourceUrl: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
   { completed: false, item: 'Nursing pillow', priority: 'High', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Boppy, My Brest Friend', category: 'Feeding' },
   { completed: false, item: 'Breast pump', priority: 'High', preferredSource: 'Insurance', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Check insurance coverage first', category: 'Feeding' },
   { completed: false, item: 'Milk storage bags/containers', priority: 'Medium', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Can wait until after birth', category: 'Feeding' },
@@ -116,7 +116,7 @@ export const defaultData: ShoppingItem[] = [
   { completed: false, item: 'Burp cloths (6-8)', priority: 'High', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'You will use these constantly', category: 'Feeding' },
   
   // Diapers
-  { completed: false, item: 'DIAPER STATION', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
+  { completed: false, item: 'DIAPER STATION', priority: '', preferredSource: '', sourceUrl: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
   { completed: false, item: 'Newborn diapers', priority: 'High', preferredSource: 'Costco/Sams', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Dont over-buy - babies grow fast', category: 'Diapers' },
   { completed: false, item: 'Size 1 diapers', priority: 'High', preferredSource: 'Costco/Sams', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Stock up on these', category: 'Diapers' },
   { completed: false, item: 'Baby wipes', priority: 'High', preferredSource: 'Costco/Sams', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Sensitive/fragrance-free preferred', category: 'Diapers' },
@@ -124,27 +124,27 @@ export const defaultData: ShoppingItem[] = [
   { completed: false, item: 'Changing pad', priority: 'Medium', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Portable or for nursery', category: 'Diapers' },
   
   // Clothing
-  { completed: false, item: 'CLOTHING BASICS', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
+  { completed: false, item: 'CLOTHING BASICS', priority: '', preferredSource: '', sourceUrl: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
   { completed: false, item: 'Onesies NB & 0-3m (6-8 each)', priority: 'High', preferredSource: 'FB Marketplace', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Mix of snaps and pull-over', category: 'Clothing' },
   { completed: false, item: 'Sleepers NB & 0-3m (4-6 each)', priority: 'High', preferredSource: 'FB Marketplace', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Zippered preferred over snaps', category: 'Clothing' },
   { completed: false, item: 'Going-home outfit', priority: 'Medium', preferredSource: 'Target', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Have NB and 0-3m ready', category: 'Clothing' },
   { completed: false, item: 'Socks & mittens (lots!)', priority: 'Medium', preferredSource: 'Target', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'They fall off constantly', category: 'Clothing' },
   
   // Bath & Care
-  { completed: false, item: 'BATH & CARE', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
+  { completed: false, item: 'BATH & CARE', priority: '', preferredSource: '', sourceUrl: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
   { completed: false, item: 'Baby bathtub', priority: 'Medium', preferredSource: 'FB Marketplace', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Can wait a few weeks', category: 'Bath & Care' },
   { completed: false, item: 'Baby soap & shampoo', priority: 'Medium', preferredSource: 'Target', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Gentle, tear-free formula', category: 'Bath & Care' },
   { completed: false, item: 'Baby towels & washcloths', priority: 'Medium', preferredSource: 'Target', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Soft, hooded towels preferred', category: 'Bath & Care' },
   { completed: false, item: 'Baby nail clippers', priority: 'Low', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Safety scissors or files', category: 'Bath & Care' },
   
   // Transportation
-  { completed: false, item: 'GETTING AROUND', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
+  { completed: false, item: 'GETTING AROUND', priority: '', preferredSource: '', sourceUrl: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
   { completed: false, item: 'Car seat (infant)', priority: 'High', preferredSource: 'FB Marketplace', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'MUST HAVE to leave hospital', category: 'Transportation' },
   { completed: false, item: 'Stroller system', priority: 'Medium', preferredSource: 'FB Marketplace', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Travel system with car seat compatibility', category: 'Transportation' },
   { completed: false, item: 'Baby carrier/wrap', priority: 'Low', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Ergobaby, Baby Björn, wraps', category: 'Transportation' },
   
   // Parents
-  { completed: false, item: 'FOR PARENTS', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
+  { completed: false, item: 'FOR PARENTS', priority: '', preferredSource: '', sourceUrl: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
   { completed: false, item: 'Comfortable nursing clothes', priority: 'Medium', preferredSource: 'Amazon', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'For mom - nursing tops, robes', category: 'Parents' },
   { completed: false, item: 'Easy snacks & freezer meals', priority: 'High', preferredSource: 'Grocery Store', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Stock up before due date', category: 'Parents' },
   { completed: false, item: 'Basic first aid supplies', priority: 'Low', preferredSource: 'CVS/Walgreens', sourceUrl: '', status: 'Not Started', estimatedCost: '', notes: 'Baby thermometer, infant Tylenol', category: 'Parents' }
