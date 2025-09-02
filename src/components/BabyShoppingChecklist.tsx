@@ -1,71 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
-type ShoppingItem = {
-  completed: boolean
-  item: string
-  priority: 'High' | 'Medium' | 'Low' | ''
-  preferredSource: string
-  status: 'Not Started' | 'Researching' | 'Found Option' | 'Purchased' | 'Received' | ''
-  estimatedCost: string
-  notes: string
-  category: string
-}
-
-const defaultData: ShoppingItem[] = [
-  // Sleep & Safety
-  { completed: false, item: 'SLEEP & SAFETY', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Crib with firm mattress', priority: 'High', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'Brand, model, condition...', category: 'Sleep & Safety' },
-  { completed: false, item: 'Fitted crib sheets (2-3)', priority: 'High', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Organic cotton preferred', category: 'Sleep & Safety' },
-  { completed: false, item: 'Bassinet or bedside sleeper', priority: 'Medium', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'For first few months', category: 'Sleep & Safety' },
-  { completed: false, item: 'Sleep sacks/swaddles (NB & 0-3m)', priority: 'High', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Halo, Love to Dream, etc.', category: 'Sleep & Safety' },
-  { completed: false, item: 'Baby monitor', priority: 'Medium', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Audio vs video preference', category: 'Sleep & Safety' },
-  
-  // Feeding
-  { completed: false, item: 'FEEDING ESSENTIALS', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Nursing pillow', priority: 'High', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Boppy, My Brest Friend', category: 'Feeding' },
-  { completed: false, item: 'Breast pump', priority: 'High', preferredSource: 'Insurance', status: 'Not Started', estimatedCost: '', notes: 'Check insurance coverage first', category: 'Feeding' },
-  { completed: false, item: 'Milk storage bags/containers', priority: 'Medium', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Can wait until after birth', category: 'Feeding' },
-  { completed: false, item: 'Nipple cream', priority: 'High', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Lanolin or other recommendations', category: 'Feeding' },
-  { completed: false, item: 'Bottles & nipples', priority: 'Medium', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Dr. Browns, Philips Avent, etc.', category: 'Feeding' },
-  { completed: false, item: 'Formula (if needed)', priority: 'Low', preferredSource: 'Target', status: 'Not Started', estimatedCost: '', notes: 'Have some on hand just in case', category: 'Feeding' },
-  { completed: false, item: 'Burp cloths (6-8)', priority: 'High', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'You will use these constantly', category: 'Feeding' },
-  
-  // Diapers
-  { completed: false, item: 'DIAPER STATION', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Newborn diapers', priority: 'High', preferredSource: 'Costco/Sams', status: 'Not Started', estimatedCost: '', notes: 'Dont over-buy - babies grow fast', category: 'Diapers' },
-  { completed: false, item: 'Size 1 diapers', priority: 'High', preferredSource: 'Costco/Sams', status: 'Not Started', estimatedCost: '', notes: 'Stock up on these', category: 'Diapers' },
-  { completed: false, item: 'Baby wipes', priority: 'High', preferredSource: 'Costco/Sams', status: 'Not Started', estimatedCost: '', notes: 'Sensitive/fragrance-free preferred', category: 'Diapers' },
-  { completed: false, item: 'Diaper cream', priority: 'High', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Desitin, A&D, or similar', category: 'Diapers' },
-  { completed: false, item: 'Changing pad', priority: 'Medium', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Portable or for nursery', category: 'Diapers' },
-  
-  // Clothing
-  { completed: false, item: 'CLOTHING BASICS', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Onesies NB & 0-3m (6-8 each)', priority: 'High', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'Mix of snaps and pull-over', category: 'Clothing' },
-  { completed: false, item: 'Sleepers NB & 0-3m (4-6 each)', priority: 'High', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'Zippered preferred over snaps', category: 'Clothing' },
-  { completed: false, item: 'Going-home outfit', priority: 'Medium', preferredSource: 'Target', status: 'Not Started', estimatedCost: '', notes: 'Have NB and 0-3m ready', category: 'Clothing' },
-  { completed: false, item: 'Socks & mittens (lots!)', priority: 'Medium', preferredSource: 'Target', status: 'Not Started', estimatedCost: '', notes: 'They fall off constantly', category: 'Clothing' },
-  
-  // Bath & Care
-  { completed: false, item: 'BATH & CARE', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Baby bathtub', priority: 'Medium', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'Can wait a few weeks', category: 'Bath & Care' },
-  { completed: false, item: 'Baby soap & shampoo', priority: 'Medium', preferredSource: 'Target', status: 'Not Started', estimatedCost: '', notes: 'Gentle, tear-free formula', category: 'Bath & Care' },
-  { completed: false, item: 'Baby towels & washcloths', priority: 'Medium', preferredSource: 'Target', status: 'Not Started', estimatedCost: '', notes: 'Soft, hooded towels preferred', category: 'Bath & Care' },
-  { completed: false, item: 'Baby nail clippers', priority: 'Low', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Safety scissors or files', category: 'Bath & Care' },
-  
-  // Transportation
-  { completed: false, item: 'GETTING AROUND', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Car seat (infant)', priority: 'High', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'MUST HAVE to leave hospital', category: 'Transportation' },
-  { completed: false, item: 'Stroller system', priority: 'Medium', preferredSource: 'FB Marketplace', status: 'Not Started', estimatedCost: '', notes: 'Travel system with car seat compatibility', category: 'Transportation' },
-  { completed: false, item: 'Baby carrier/wrap', priority: 'Low', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'Ergobaby, Baby Björn, wraps', category: 'Transportation' },
-  
-  // Parents
-  { completed: false, item: 'FOR PARENTS', priority: '', preferredSource: '', status: '', estimatedCost: '', notes: '', category: 'CATEGORY' },
-  { completed: false, item: 'Comfortable nursing clothes', priority: 'Medium', preferredSource: 'Amazon', status: 'Not Started', estimatedCost: '', notes: 'For mom - nursing tops, robes', category: 'Parents' },
-  { completed: false, item: 'Easy snacks & freezer meals', priority: 'High', preferredSource: 'Grocery Store', status: 'Not Started', estimatedCost: '', notes: 'Stock up before due date', category: 'Parents' },
-  { completed: false, item: 'Basic first aid supplies', priority: 'Low', preferredSource: 'CVS/Walgreens', status: 'Not Started', estimatedCost: '', notes: 'Baby thermometer, infant Tylenol', category: 'Parents' }
-]
+import { useState, useEffect, useCallback } from 'react'
+import { xanoApi, XanoApiError } from '@/services/xanoApi'
+import { ShoppingItem, xanoToLocal, localToXano, defaultData } from '@/services/dataTransform'
 
 const sourceOptions = ['FB Marketplace', 'Amazon', 'Target', 'Buy Buy Baby', 'Costco/Sams', 'CVS/Walgreens', 'Insurance', 'Grocery Store', 'Local Store']
 const statusOptions: ShoppingItem['status'][] = ['Not Started', 'Researching', 'Found Option', 'Purchased', 'Received']
@@ -73,7 +10,7 @@ const priorityOptions: ShoppingItem['priority'][] = ['High', 'Medium', 'Low']
 const categoryOptions = ['Sleep & Safety', 'Feeding', 'Diapers', 'Clothing', 'Bath & Care', 'Transportation', 'Parents', 'Other']
 
 export default function BabyShoppingChecklist() {
-  const [items, setItems] = useState<ShoppingItem[]>(defaultData)
+  const [items, setItems] = useState<ShoppingItem[]>([])
   const [connectionStatus, setConnectionStatus] = useState<'loading' | 'connected' | 'error'>('loading')
   const [syncStatus, setSyncStatus] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
@@ -88,18 +25,126 @@ export default function BabyShoppingChecklist() {
     category: ''
   })
   const [formErrors, setFormErrors] = useState<string[]>([])
+  const [pendingUpdates, setPendingUpdates] = useState<Set<number>>(new Set())
 
-  useEffect(() => {
-    // Simulate connection attempt
-    setTimeout(() => {
+  // Load data from Xano API
+  const loadData = useCallback(async () => {
+    setConnectionStatus('loading')
+    setSyncStatus('')
+    
+    try {
+      const xanoItems = await xanoApi.getAllItems()
+      
+      if (xanoItems.length === 0) {
+        // No data in API, use default data locally but stay connected
+        setItems(defaultData)
+        setConnectionStatus('connected')
+        setSyncStatus('No data found in database. Using default items.')
+      } else {
+        // Transform Xano data to local format and merge with category headers
+        const apiItems = xanoItems.map(xanoToLocal)
+        const mergedItems = mergeWithCategoryHeaders(apiItems)
+        setItems(mergedItems)
+        setConnectionStatus('connected')
+        setSyncStatus('')
+      }
+    } catch (error) {
+      console.error('Error loading data:', error)
+      setItems(defaultData)
       setConnectionStatus('error')
-    }, 1000)
+      
+      if (error instanceof XanoApiError) {
+        setSyncStatus(`Connection failed: ${error.message}`)
+      } else {
+        setSyncStatus('Failed to connect to database. Using local data.')
+      }
+    }
   }, [])
+
+  // Initial data load
+  useEffect(() => {
+    loadData()
+  }, [loadData])
+
+  // Merge API items with category headers from default data
+  const mergeWithCategoryHeaders = (apiItems: ShoppingItem[]): ShoppingItem[] => {
+    const result: ShoppingItem[] = []
+    const categoryHeaders = defaultData.filter(item => item.category === 'CATEGORY')
+    
+    for (const header of categoryHeaders) {
+      result.push(header)
+      const categoryItems = apiItems.filter(item => item.category === header.item.replace(/^(.*?) (ESSENTIALS|STATION|BASICS|& CARE|AROUND|PARENTS)$/, '$1').trim())
+      result.push(...categoryItems)
+    }
+    
+    // Add any items that don't fit into predefined categories
+    const uncategorizedItems = apiItems.filter(item => 
+      !categoryHeaders.some(header => {
+        const categoryName = header.item.replace(/^(.*?) (ESSENTIALS|STATION|BASICS|& CARE|AROUND|PARENTS)$/, '$1').trim()
+        return item.category === categoryName
+      })
+    )
+    
+    if (uncategorizedItems.length > 0) {
+      result.push({ 
+        completed: false, 
+        item: 'OTHER ITEMS', 
+        priority: '', 
+        preferredSource: '', 
+        status: '', 
+        estimatedCost: '', 
+        notes: '', 
+        category: 'CATEGORY' 
+      })
+      result.push(...uncategorizedItems)
+    }
+    
+    return result
+  }
+
+  // Debounced update function
+  const debouncedUpdate = useCallback((item: ShoppingItem, delay: number = 1000) => {
+    if (!item.id || connectionStatus !== 'connected') return
+    
+    setPendingUpdates(prev => new Set(prev).add(item.id!))
+    
+    setTimeout(async () => {
+      try {
+        const xanoData = localToXano(item)
+        await xanoApi.updateItem(item.id!, xanoData)
+        
+        setPendingUpdates(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(item.id!)
+          return newSet
+        })
+        
+        setSyncStatus('Saved')
+        setTimeout(() => setSyncStatus(''), 2000)
+      } catch (error) {
+        console.error('Error updating item:', error)
+        setPendingUpdates(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(item.id!)
+          return newSet
+        })
+        setSyncStatus('Save failed')
+        setTimeout(() => setSyncStatus(''), 3000)
+      }
+    }, delay)
+  }, [connectionStatus])
 
   const updateItem = (index: number, field: keyof ShoppingItem, value: any) => {
     setItems(prevItems => {
       const newItems = [...prevItems]
-      newItems[index] = { ...newItems[index], [field]: value }
+      const updatedItem = { ...newItems[index], [field]: value }
+      newItems[index] = updatedItem
+      
+      // Auto-save if item has an ID (came from API) and it's not a category header
+      if (updatedItem.id && updatedItem.category !== 'CATEGORY') {
+        debouncedUpdate(updatedItem)
+      }
+      
       return newItems
     })
   }
@@ -118,7 +163,7 @@ export default function BabyShoppingChecklist() {
     return errors
   }
 
-  const addNewItem = () => {
+  const addNewItem = async () => {
     const errors = validateNewItem()
     setFormErrors(errors)
     
@@ -134,7 +179,26 @@ export default function BabyShoppingChecklist() {
         : newItem.estimatedCost
     }
     
-    setItems(prevItems => [...prevItems, formattedItem])
+    if (connectionStatus === 'connected') {
+      // Save to database
+      try {
+        const xanoData = localToXano(formattedItem)
+        const createdItem = await xanoApi.createItem(xanoData)
+        const localItem = xanoToLocal(createdItem)
+        
+        setItems(prevItems => [...prevItems, localItem])
+        setSyncStatus('New item created and saved!')
+      } catch (error) {
+        console.error('Error creating item:', error)
+        setItems(prevItems => [...prevItems, formattedItem])
+        setSyncStatus('Item added locally (not saved to database)')
+      }
+    } else {
+      // Add locally only
+      setItems(prevItems => [...prevItems, formattedItem])
+      setSyncStatus('New item added locally!')
+    }
+    
     setNewItem({
       completed: false,
       item: '',
@@ -147,12 +211,29 @@ export default function BabyShoppingChecklist() {
     })
     setFormErrors([])
     setShowAddForm(false)
-    setSyncStatus('New item added successfully!')
+    setTimeout(() => setSyncStatus(''), 3000)
   }
 
-  const deleteItem = (index: number) => {
+  const deleteItem = async (index: number) => {
     if (confirm('Are you sure you want to delete this item?')) {
-      setItems(prevItems => prevItems.filter((_, i) => i !== index))
+      const item = items[index]
+      
+      if (item.id && connectionStatus === 'connected') {
+        // Delete from database
+        try {
+          await xanoApi.deleteItem(item.id)
+          setItems(prevItems => prevItems.filter((_, i) => i !== index))
+          setSyncStatus('Item deleted!')
+          setTimeout(() => setSyncStatus(''), 3000)
+        } catch (error) {
+          console.error('Error deleting item:', error)
+          setSyncStatus('Failed to delete from database')
+          setTimeout(() => setSyncStatus(''), 3000)
+        }
+      } else {
+        // Delete locally only
+        setItems(prevItems => prevItems.filter((_, i) => i !== index))
+      }
     }
   }
 
@@ -181,11 +262,101 @@ export default function BabyShoppingChecklist() {
 
   const getStatusIndicator = () => {
     if (connectionStatus === 'loading') {
-      return <div className="text-center p-5 text-gray-600">Loading data from Google Sheet...</div>
+      return <div className="text-center p-5 text-gray-600">Loading data from database...</div>
     } else if (connectionStatus === 'connected') {
-      return <div className="p-3 mb-5 rounded bg-green-100 text-green-800 border border-green-200 text-center">✅ Connected to Google Sheet</div>
+      return <div className="p-3 mb-5 rounded bg-green-100 text-green-800 border border-green-200 text-center">✅ Connected to database</div>
     } else {
-      return <div className="p-3 mb-5 rounded bg-red-100 text-red-800 border border-red-200 text-center">⚠️ Google Sheets API not configured. Using local data only.</div>
+      return <div className="p-3 mb-5 rounded bg-red-100 text-red-800 border border-red-200 text-center">⚠️ Database connection failed. Using local data only.</div>
+    }
+  }
+
+  const handleRefresh = () => {
+    loadData()
+  }
+
+  const handleSaveAll = async () => {
+    if (connectionStatus !== 'connected') {
+      setSyncStatus('Not connected to database')
+      setTimeout(() => setSyncStatus(''), 3000)
+      return
+    }
+
+    setSyncStatus('Saving all changes...')
+    
+    try {
+      const savePromises = items
+        .filter(item => item.id && item.category !== 'CATEGORY')
+        .map(async (item) => {
+          const xanoData = localToXano(item)
+          return xanoApi.updateItem(item.id!, xanoData)
+        })
+      
+      await Promise.all(savePromises)
+      setSyncStatus('All changes saved!')
+      setTimeout(() => setSyncStatus(''), 3000)
+    } catch (error) {
+      console.error('Error saving all items:', error)
+      setSyncStatus('Failed to save some items')
+      setTimeout(() => setSyncStatus(''), 3000)
+    }
+  }
+
+  const handleCreateItem = async () => {
+    if (connectionStatus !== 'connected') {
+      setSyncStatus('Not connected to database')
+      setTimeout(() => setSyncStatus(''), 3000)
+      return
+    }
+
+    setSyncStatus('Creating new item...')
+
+    try {
+      const newItemData = {
+        name: 'New Item',
+        description: 'User added item',
+        priority: 'medium' as const,
+        source_url: 'Amazon',
+        status: 'pending' as const,
+        cost: 0,
+        notes: 'Add your notes here...',
+        category: 'Other'
+      }
+
+      const createdItem = await xanoApi.createItem(newItemData)
+      const localItem = xanoToLocal(createdItem)
+      
+      // Add the new item to the "OTHER ITEMS" category
+      setItems(prevItems => {
+        const newItems = [...prevItems]
+        const otherCategoryIndex = newItems.findIndex(item => item.item === 'OTHER ITEMS' && item.category === 'CATEGORY')
+        
+        if (otherCategoryIndex === -1) {
+          // No "OTHER ITEMS" category exists, add it at the end
+          newItems.push({ 
+            completed: false, 
+            item: 'OTHER ITEMS', 
+            priority: '', 
+            preferredSource: '', 
+            status: '', 
+            estimatedCost: '', 
+            notes: '', 
+            category: 'CATEGORY' 
+          })
+          newItems.push(localItem)
+        } else {
+          // Insert after the "OTHER ITEMS" header
+          newItems.splice(otherCategoryIndex + 1, 0, localItem)
+        }
+        
+        return newItems
+      })
+      
+      setSyncStatus('New item created!')
+      setTimeout(() => setSyncStatus(''), 3000)
+    } catch (error) {
+      console.error('Error creating item:', error)
+      setSyncStatus('Failed to create item')
+      setTimeout(() => setSyncStatus(''), 3000)
     }
   }
 
@@ -199,19 +370,34 @@ export default function BabyShoppingChecklist() {
         <>
           <div className="mb-5 text-right">
             {syncStatus && (
-              <span className={`text-sm px-2 py-1 mr-3 ${syncStatus.includes('failed') ? 'text-red-600' : 'text-green-600'}`}>
+              <span className={`text-sm px-2 py-1 mr-3 ${
+                syncStatus.includes('failed') || syncStatus.includes('Failed') ? 'text-red-600' : 'text-green-600'
+              }`}>
                 {syncStatus}
+              </span>
+            )}
+            {pendingUpdates.size > 0 && (
+              <span className="text-sm px-2 py-1 mr-3 text-yellow-600">
+                Saving {pendingUpdates.size} item{pendingUpdates.size > 1 ? 's' : ''}...
               </span>
             )}
             <button 
               className="bg-gray-500 text-white px-4 py-2 rounded mr-3 hover:bg-gray-600"
-              onClick={() => window.location.reload()}
+              onClick={handleRefresh}
             >
               Refresh Data
             </button>
             <button 
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mr-3"
-              onClick={() => setSyncStatus('All changes saved!')}
+              className="bg-green-500 text-white px-4 py-2 rounded mr-3 hover:bg-green-600 disabled:opacity-50"
+              onClick={handleCreateItem}
+              disabled={connectionStatus !== 'connected'}
+            >
+              + Add Item
+            </button>
+            <button 
+              className="bg-blue-500 text-white px-4 py-2 rounded mr-3 hover:bg-blue-600 disabled:opacity-50"
+              onClick={handleSaveAll}
+              disabled={connectionStatus !== 'connected'}
             >
               Save All Changes
             </button>
@@ -394,16 +580,19 @@ export default function BabyShoppingChecklist() {
                     </tr>
                   ) : (
                     <tr 
-                      key={index} 
+                      key={item.id ? `item-${item.id}` : `local-${index}`}
                       className={`${item.completed ? 'opacity-60' : ''} ${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-gray-100`}
                     >
-                      <td className="p-2 border-b border-gray-300">
+                      <td className="p-2 border-b border-gray-300 relative">
                         <input
                           type="checkbox"
                           className="transform scale-125"
                           checked={item.completed}
                           onChange={(e) => updateItem(index, 'completed', e.target.checked)}
                         />
+                        {item.id && pendingUpdates.has(item.id) && (
+                          <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full"></div>
+                        )}
                       </td>
                       <td className="p-2 border-b border-gray-300">
                         <input
@@ -501,7 +690,7 @@ export default function BabyShoppingChecklist() {
               <li><strong>Check your insurance:</strong> Many cover breast pumps - call them first</li>
               <li><strong>Hospital checklist:</strong> Car seat is REQUIRED to leave the hospital</li>
               <li><strong>Stock up timing:</strong> Have essentials by 36 weeks (babies can come early!)</li>
-              <li><strong>Google Sheets Integration:</strong> Changes are automatically saved to your Google Sheet so both parents can access from anywhere!</li>
+              <li><strong>Database Sync:</strong> Changes are automatically saved to the database so both parents can access from anywhere!</li>
             </ul>
           </div>
         </>
