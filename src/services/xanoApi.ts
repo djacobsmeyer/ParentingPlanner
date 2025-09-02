@@ -3,7 +3,7 @@ const XANO_BASE_URL = 'https://xuz0-tsfm-drds.n7.xano.io/api:VHWtgrOF'
 export interface XanoShoppingItem {
   id: number
   created_at: string
-  user: string
+  user: number
   name: string
   description: string
   priority: 'low' | 'medium' | 'high'
@@ -15,7 +15,7 @@ export interface XanoShoppingItem {
 }
 
 export interface CreateShoppingItemRequest {
-  user?: string
+  user: number
   name: string
   description?: string
   priority: 'low' | 'medium' | 'high'
@@ -37,7 +37,16 @@ class XanoApiError extends Error {
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const errorMessage = `HTTP ${response.status}: ${response.statusText}`
+    let errorDetails = response.statusText
+    try {
+      const errorBody = await response.text()
+      if (errorBody) {
+        errorDetails = errorBody
+      }
+    } catch (e) {
+      // If we can't read the error body, just use the status text
+    }
+    const errorMessage = `HTTP ${response.status}: ${errorDetails}`
     throw new XanoApiError(errorMessage, response.status)
   }
   
