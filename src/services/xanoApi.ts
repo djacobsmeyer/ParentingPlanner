@@ -1,4 +1,19 @@
-const XANO_BASE_URL = 'https://xuz0-tsfm-drds.n7.xano.io/api:VHWtgrOF'
+import { getConfig } from './config'
+
+function getApiHeaders(additionalHeaders: Record<string, string> = {}): Record<string, string> {
+  const config = getConfig()
+  
+  return {
+    'Content-Type': 'application/json',
+    'X-Data-Source': config.dataSource,
+    ...additionalHeaders
+  }
+}
+
+function getBaseUrl(): string {
+  const config = getConfig()
+  return config.xanoBaseUrl
+}
 
 export interface XanoShoppingItem {
   id: number
@@ -60,7 +75,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
 export const xanoApi = {
   async getAllItems(): Promise<XanoShoppingItem[]> {
     try {
-      const response = await fetch(`${XANO_BASE_URL}/shopping_item`)
+      const response = await fetch(`${getBaseUrl()}/shopping_item`, {
+        headers: getApiHeaders()
+      })
       return handleResponse<XanoShoppingItem[]>(response)
     } catch (error) {
       if (error instanceof XanoApiError) {
@@ -72,7 +89,9 @@ export const xanoApi = {
 
   async getItem(id: number): Promise<XanoShoppingItem> {
     try {
-      const response = await fetch(`${XANO_BASE_URL}/shopping_item/${id}`)
+      const response = await fetch(`${getBaseUrl()}/shopping_item/${id}`, {
+        headers: getApiHeaders()
+      })
       return handleResponse<XanoShoppingItem>(response)
     } catch (error) {
       if (error instanceof XanoApiError) {
@@ -84,11 +103,9 @@ export const xanoApi = {
 
   async createItem(item: CreateShoppingItemRequest): Promise<XanoShoppingItem> {
     try {
-      const response = await fetch(`${XANO_BASE_URL}/shopping_item`, {
+      const response = await fetch(`${getBaseUrl()}/shopping_item`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getApiHeaders(),
         body: JSON.stringify(item)
       })
       return handleResponse<XanoShoppingItem>(response)
@@ -102,11 +119,9 @@ export const xanoApi = {
 
   async updateItem(id: number, updates: UpdateShoppingItemRequest): Promise<XanoShoppingItem> {
     try {
-      const response = await fetch(`${XANO_BASE_URL}/shopping_item/${id}`, {
+      const response = await fetch(`${getBaseUrl()}/shopping_item/${id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getApiHeaders(),
         body: JSON.stringify(updates)
       })
       return handleResponse<XanoShoppingItem>(response)
@@ -120,8 +135,9 @@ export const xanoApi = {
 
   async deleteItem(id: number): Promise<void> {
     try {
-      const response = await fetch(`${XANO_BASE_URL}/shopping_item/${id}`, {
-        method: 'DELETE'
+      const response = await fetch(`${getBaseUrl()}/shopping_item/${id}`, {
+        method: 'DELETE',
+        headers: getApiHeaders()
       })
       
       if (!response.ok) {
