@@ -763,9 +763,9 @@ export default function BabyShoppingChecklist() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Notes</label>
-                    <input
-                      type="text"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    <textarea
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"
                       value={newItem.notes}
                       placeholder="Notes or specific model..."
                       onChange={(e) => setNewItem({...newItem, notes: e.target.value})}
@@ -992,9 +992,9 @@ export default function BabyShoppingChecklist() {
                         
                         <div>
                           <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Notes</label>
-                          <input
-                            type="text"
-                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                          <textarea
+                            rows={2}
+                            className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors resize-vertical"
                             value={item.notes}
                             placeholder="Notes or specific model..."
                             onChange={(e) => updateItem((item as any).originalIndex, 'notes', e.target.value)}
