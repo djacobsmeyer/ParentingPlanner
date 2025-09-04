@@ -21,9 +21,9 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the application.
+Visit `http://localhost:3000/ParentingPlanner/` to see the application.
 
-**Docker/Network Access:** If you need to access the dev server from a different container or network interface, use the network URL shown in the console output (typically `http://10.243.1.132:3000` or similar).
+**Docker/Network Access:** If you need to access the dev server from a different container or network interface, use the network URL shown in the console output with the base path (typically `http://10.243.1.132:3000/ParentingPlanner/` or similar).
 
 ### Build for Production
 
