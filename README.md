@@ -23,6 +23,8 @@ npm run dev
 
 Visit `http://localhost:3000` to see the application.
 
+**Docker/Network Access:** If you need to access the dev server from a different container or network interface, use the network URL shown in the console output (typically `http://10.243.1.132:3000` or similar).
+
 ### Build for Production
 
 ```bash

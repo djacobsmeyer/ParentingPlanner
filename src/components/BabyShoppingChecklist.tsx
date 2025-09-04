@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { xanoApi, XanoApiError } from '@/services/xanoApi'
 import { ShoppingItem, xanoToLocal, localToXano, defaultData } from '@/services/dataTransform'
 import UrlThumbnail from './UrlThumbnail'
@@ -28,6 +28,7 @@ export default function BabyShoppingChecklist() {
   })
   const [formErrors, setFormErrors] = useState<string[]>([])
   const [pendingUpdates, setPendingUpdates] = useState<Set<number>>(new Set())
+  const updateTimeoutsRef = useRef<Map<number, NodeJS.Timeout>>(new Map())
 
   // Load data from Xano API
   const loadData = useCallback(async () => {
@@ -67,6 +68,16 @@ export default function BabyShoppingChecklist() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      updateTimeoutsRef.current.forEach(timeoutId => {
+        clearTimeout(timeoutId)
+      })
+      updateTimeoutsRef.current.clear()
+    }
+  }, [])
 
   // Merge API items with category headers from default data
   const mergeWithCategoryHeaders = (apiItems: ShoppingItem[]): ShoppingItem[] => {
@@ -114,10 +125,17 @@ export default function BabyShoppingChecklist() {
       return
     }
     
+    // Clear existing timeout for this item if it exists
+    const existingTimeout = updateTimeoutsRef.current.get(item.id!)
+    if (existingTimeout) {
+      console.log(`🔄 Clearing existing timeout for item ${item.id}`)
+      clearTimeout(existingTimeout)
+    }
+    
     console.log(`⏳ Setting item ${item.id} as pending update`)
     setPendingUpdates(prev => new Set(prev).add(item.id!))
     
-    setTimeout(async () => {
+    const timeoutId = setTimeout(async () => {
       try {
         console.log(`🎬 Starting update for item ${item.id} after ${delay}ms delay`)
         
@@ -160,6 +178,9 @@ export default function BabyShoppingChecklist() {
           }
         }
         
+        // Clear the timeout from our tracking map
+        updateTimeoutsRef.current.delete(item.id!)
+        
         setPendingUpdates(prev => {
           const newSet = new Set(prev)
           newSet.delete(item.id!)
@@ -170,6 +191,10 @@ export default function BabyShoppingChecklist() {
         setTimeout(() => setSyncStatus(''), 2000)
       } catch (error) {
         console.error(`❌ Error updating/creating item ${item.id}:`, error)
+        
+        // Clear the timeout from our tracking map
+        updateTimeoutsRef.current.delete(item.id!)
+        
         setPendingUpdates(prev => {
           const newSet = new Set(prev)
           newSet.delete(item.id!)
@@ -185,6 +210,9 @@ export default function BabyShoppingChecklist() {
         setTimeout(() => setSyncStatus(''), 3000)
       }
     }, delay)
+    
+    // Store the timeout ID in our tracking map
+    updateTimeoutsRef.current.set(item.id!, timeoutId)
   }, [connectionStatus])
 
   // Debounced create for default items that get edited
